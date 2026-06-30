@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Appointment - Vital Campus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="header-content">
+                <h1>📅 Book Appointment</h1>
+                <p>Find the right support</p>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </header>
+        
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
+            <a href="{{ url_for('mood') }}">😊 Mood</a>
+            <a href="{{ url_for('workload') }}">📊 Workload</a>
+            <a href="{{ url_for('booking') }}" class="active">📅 Book</a>
+            <a href="{{ url_for('forum') }}">💬 Forum</a>
+            <a href="{{ url_for('admin') }}">📊 Reports</a>
+        </nav>
+        
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST">
+                <div class="card">
+                    <h3>Service Type</h3>
+                    <div class="chip-group">
+                        <button type="button" class="chip service-chip" data-service="Personal Counselling">Personal Counselling</button>
+                        <button type="button" class="chip service-chip" data-service="Academic Advising">Academic Advising</button>
+                        <button type="button" class="chip service-chip" data-service="Financial Aid">Financial Aid</button>
+                    </div>
+                    <input type="hidden" name="service_type" id="selectedService" value="Personal Counselling">
+                </div>
+                
+                <div class="card">
+                    <h3>✏️ Reason (200 char limit)</h3>
+                    <input type="text" name="reason" placeholder="Need help with exam anxiety and workload..." maxlength="200" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                </div>
+                
+                <div class="card">
+                    <h3>👤 Select Counsellor</h3>
+                    <div class="chip-group">
+                        {% for counsellor in counsellors %}
+                            <button type="button" class="chip counsellor-chip" data-counsellor="{{ counsellor.id }}">
+                                {{ counsellor.full_name }} ({{ counsellor.specialisation }})
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="counsellor_id" id="selectedCounsellor" value="">
+                </div>
+                
+                <div class="card">
+                    <h3>📅 Select Date & Time</h3>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" name="appointment_date" required min="{{ today }}" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <div class="chip-group">
+                            <button type="button" class="chip time-chip" data-time="09:00 AM">09:00 AM</button>
+                            <button type="button" class="chip time-chip" data-time="10:00 AM">10:00 AM</button>
+                            <button type="button" class="chip time-chip" data-time="11:00 AM">11:00 AM</button>
+                            <button type="button" class="chip time-chip" data-time="02:00 PM">02:00 PM</button>
+                            <button type="button" class="chip time-chip" data-time="03:00 PM">03:00 PM</button>
+                            <button type="button" class="chip time-chip" data-time="04:00 PM">04:00 PM</button>
+                        </div>
+                        <input type="hidden" name="appointment_time" id="selectedTime" value="">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Confirm Appointment</button>
+            </form>
+        </main>
+    </div>
+    
+    <script>
+        document.querySelectorAll('.service-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.service-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('selectedService').value = this.dataset.service;
+            });
+        });
+        document.querySelector('.service-chip').classList.add('active');
+        
+        document.querySelectorAll('.counsellor-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.counsellor-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('selectedCounsellor').value = this.dataset.counsellor;
+            });
+        });
+        
+        document.querySelectorAll('.time-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('selectedTime').value = this.dataset.time;
+            });
+        });
+    </script>
+</body>
+</html>

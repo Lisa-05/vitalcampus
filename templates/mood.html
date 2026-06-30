@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Tracker - Vital Campus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="header-content">
+                <h1>😊 Mood Tracker</h1>
+                <p>How are you feeling today?</p>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </header>
+        
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
+            <a href="{{ url_for('mood') }}" class="active">😊 Mood</a>
+            <a href="{{ url_for('workload') }}">📊 Workload</a>
+            <a href="{{ url_for('booking') }}">📅 Book</a>
+            <a href="{{ url_for('forum') }}">💬 Forum</a>
+            <a href="{{ url_for('admin') }}">📊 Reports</a>
+        </nav>
+        
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST">
+                <div class="card">
+                    <h3>How are you feeling today?</h3>
+                    
+                    <div class="emoji-row">
+                        <span class="emoji" data-mood="8">😊</span>
+                        <span class="emoji" data-mood="5">😐</span>
+                        <span class="emoji" data-mood="2">😔</span>
+                    </div>
+                    
+                    <div class="mood-slider">
+                        <input type="range" class="slider" name="rating" min="1" max="10" value="5" id="moodSlider">
+                        <div class="mood-value">Today: <span id="moodValue">5</span>/10</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>😴 Sleep Quality</label>
+                        <div class="chip-group">
+                            <button type="button" class="chip sleep-chip" data-sleep="Poor">Poor</button>
+                            <button type="button" class="chip sleep-chip" data-sleep="Fair">Fair</button>
+                            <button type="button" class="chip sleep-chip" data-sleep="Good">Good</button>
+                        </div>
+                        <input type="hidden" name="sleep_quality" id="selectedSleep" value="Fair">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>🏷️ Stress Triggers (select all that apply)</label>
+                        <div class="chip-group">
+                            <button type="button" class="chip trigger-chip" data-trigger="Assignments">Assignments</button>
+                            <button type="button" class="chip trigger-chip" data-trigger="Finances">Finances</button>
+                            <button type="button" class="chip trigger-chip" data-trigger="Relationships">Relationships</button>
+                            <button type="button" class="chip trigger-chip" data-trigger="Social">Social</button>
+                            <button type="button" class="chip trigger-chip" data-trigger="Health">Health</button>
+                            <button type="button" class="chip trigger-chip" data-trigger="Other">Other</button>
+                        </div>
+                        <input type="hidden" name="stress_triggers" id="selectedTriggers" value="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>✏️ Optional Note (120 char limit)</label>
+                        <input type="text" name="notes" placeholder="How are you feeling?" maxlength="120" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">💾 Save Today's Check-in</button>
+                    
+                    <div class="privacy-note">🔒 Only you can see this entry</div>
+                </div>
+            </form>
+        </main>
+    </div>
+    
+    <script>
+        const slider = document.getElementById('moodSlider');
+        const moodValue = document.getElementById('moodValue');
+        slider.addEventListener('input', function() {
+            moodValue.textContent = this.value;
+        });
+        
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.addEventListener('click', function() {
+                const mood = this.dataset.mood;
+                slider.value = mood;
+                moodValue.textContent = mood;
+                document.querySelectorAll('.emoji').forEach(e => e.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+        
+        document.querySelectorAll('.sleep-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.sleep-chip').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById('selectedSleep').value = this.dataset.sleep;
+            });
+        });
+        document.querySelector('.sleep-chip').classList.add('active');
+        
+        let selectedTriggers = [];
+        document.querySelectorAll('.trigger-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                this.classList.toggle('active');
+                const trigger = this.dataset.trigger;
+                if (selectedTriggers.includes(trigger)) {
+                    selectedTriggers = selectedTriggers.filter(t => t !== trigger);
+                } else {
+                    selectedTriggers.push(trigger);
+                }
+                document.getElementById('selectedTriggers').value = selectedTriggers.join(', ');
+            });
+        });
+    </script>
+</body>
+</html>

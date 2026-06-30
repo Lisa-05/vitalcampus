@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="header-content">
+                <h1>🌿 Vital Campus</h1>
+            </div>
+        </header>
+        <main style="text-align:center; padding:40px;">
+            <div style="font-size:80px;">🔍</div>
+            <h1 style="font-size:48px;">404</h1>
+            <p style="font-size:18px; color:#666;">Page not found</p>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="display:inline-block; width:auto; padding:10px 30px;">Go Home</a>
+        </main>
+    </div>
+</body>
+</html>

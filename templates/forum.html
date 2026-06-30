@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peer Forum - Vital Campus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div class="header-content">
+                <h1>💬 Peer Support Forum</h1>
+                <p>You are posting as: <strong>User{{ current_user.id % 1000 }}</strong> 🔒</p>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </header>
+        
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
+            <a href="{{ url_for('mood') }}">😊 Mood</a>
+            <a href="{{ url_for('workload') }}">📊 Workload</a>
+            <a href="{{ url_for('booking') }}">📅 Book</a>
+            <a href="{{ url_for('forum') }}" class="active">💬 Forum</a>
+            <a href="{{ url_for('admin') }}">📊 Reports</a>
+        </nav>
+        
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="card">
+                <h3>✏️ Write a new post</h3>
+                <form method="POST">
+                    <div class="form-group">
+                        <select name="category" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                            <option value="Academics">📚 Academics</option>
+                            <option value="Mental Health">🧠 Mental Health</option>
+                            <option value="Social">👥 Social</option>
+                            <option value="Finance">💰 Finance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="content" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;" placeholder="What's on your mind?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width:auto; padding:10px 20px;">📤 Post Anonymously</button>
+                </form>
+            </div>
+            
+            <h3 style="padding:0 15px;">📋 Recent Posts</h3>
+            {% for post in posts %}
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>{{ post.anonymous_alias }}</strong>
+                    <span style="font-size:11px; color:gray;">{{ post.posted_at.strftime('%b %d, %H:%M') }}</span>
+                </div>
+                <div style="font-size:11px; color:#666; margin:5px 0;">
+                    <span style="background:#eee; padding:2px 8px; border-radius:12px;">{{ post.category }}</span>
+                </div>
+                <p>{{ post.content }}</p>
+                <div style="font-size:11px; color:gray; margin-top:8px;">
+                    💬 {{ post.replies|length }} replies · ❤️ 0 · 🚩 Flag
+                </div>
+            </div>
+            {% else %}
+            <div class="card" style="text-align:center; color:gray;">
+                <p>No posts yet. Be the first to share!</p>
+            </div>
+            {% endfor %}
+        </main>
+    </div>
+</body>
+</html>
