@@ -144,13 +144,23 @@ header {
     padding: 20px;
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
 .header-content h1 {
     font-size: 24px;
+    margin: 0;
 }
 
 .header-content p {
     font-size: 14px;
     opacity: 0.9;
+    margin: 5px 0 0 0;
+    flex: 1;
 }
 
 .logout-btn {
@@ -160,10 +170,11 @@ header {
     padding: 4px 12px;
     border-radius: 20px;
     cursor: pointer;
-    float: right;
-    margin-top: -25px;
     text-decoration: none;
     font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    position: relative;
 }
 
 .logout-btn:hover {
@@ -198,6 +209,14 @@ main {
     text-align: center;
 }
 
+/* Make inline Log Mood link more visible on the wellness card */
+.wellness-card a {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 15px;
+    text-decoration: underline;
+}
+
 .score-number {
     font-size: 48px;
     font-weight: bold;
@@ -218,6 +237,17 @@ main {
 
 .score-status.doing-well {
     background: rgba(76, 175, 80, 0.3);
+    color: #2e7d32;
+}
+
+.score-status.okay {
+    background: rgba(255, 193, 7, 0.3);
+    color: #f57f17;
+}
+
+.score-status.needs-support {
+    background: rgba(244, 67, 54, 0.3);
+    color: #c62828;
 }
 
 .progress-bar {

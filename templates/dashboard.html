@@ -11,7 +11,11 @@
         <header>
             <div class="header-content">
                 <h1>🌿 Vital Campus</h1>
-                <p>Welcome back, {{ current_user.preferred_name }} 👋</p>
+                {% if is_first_login %}
+                    <p>Welcome, {{ current_user.preferred_name }} 👋</p>
+                {% else %}
+                    <p>Welcome back, {{ current_user.preferred_name }} 👋</p>
+                {% endif %}
                 <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
             </div>
         </header>
@@ -37,12 +41,21 @@
             <!-- Wellness Score Card -->
             <div class="card wellness-card">
                 <div class="wellness-score">
-                    <div class="score-number">78</div>
-                    <div class="score-label">Wellness Score</div>
-                    <div class="score-status doing-well">Doing Well</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width:78%;"></div>
-                    </div>
+                    {% if wellness_score is not none %}
+                        <div class="score-number">{{ wellness_score }}</div>
+                        <div class="score-label">Wellness Score</div>
+                        <div class="score-status {{ wellness_status }}">
+                            {% if wellness_status == 'doing-well' %}Doing Well
+                            {% elif wellness_status == 'okay' %}Doing Okay
+                            {% else %}Needs Support{% endif %}
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" data-width="{{ wellness_score | default(0) }}"></div>
+                        </div>
+                    {% else %}
+                        <div class="score-label">Wellness Score</div>
+                        <p style="color:#999; font-size:14px; margin-top:10px;"><a href="{{ url_for('mood') }}" style="color:#0288D1;">Log mood</a> to see your wellness score</p>
+                    {% endif %}
                 </div>
             </div>
             
