@@ -11,11 +11,7 @@
         <header>
             <div class="header-content">
                 <h1>🌿 Vital Campus</h1>
-                {% if is_first_login %}
-                    <p>Welcome, {{ current_user.preferred_name }} 👋</p>
-                {% else %}
-                    <p>Welcome back, {{ current_user.preferred_name }} 👋</p>
-                {% endif %}
+              
                 <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
             </div>
         </header>
@@ -37,6 +33,14 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
+            <div class="card welcome-card">
+                {% if is_first_login %}
+                    <h2>Welcome, {{ current_user.preferred_name }} 👋</h2>
+                {% else %}
+                    <h2>Welcome back, {{ current_user.preferred_name }} 👋</h2>
+                {% endif %}
+                <p>You're signed in and ready to continue.</p>
+            </div>
             
             <!-- Wellness Score Card -->
             <div class="card wellness-card">
