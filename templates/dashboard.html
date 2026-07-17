@@ -11,7 +11,11 @@
         <header>
             <div class="header-content">
                 <h1>🌿 Vital Campus</h1>
+<<<<<<< HEAD
               
+=======
+                <p>Welcome, {{ current_user.preferred_name }} 👋</p>
+>>>>>>> b8e13df (Fixed login, logout, dashboard errors, and updated app.py)
                 <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
             </div>
         </header>
@@ -42,6 +46,7 @@
                 <p>You're signed in and ready to continue.</p>
             </div>
             
+<<<<<<< HEAD
             <!-- Wellness Score Card -->
             <div class="card wellness-card">
                 <div class="wellness-score">
@@ -62,6 +67,21 @@
                     {% endif %}
                 </div>
             </div>
+=======
+           <!-- Wellness Score Card -->
+<div class="card wellness-card">
+    <div class="wellness-score">
+        <div class="score-number">{% if wellness_score %}{{ wellness_score }}{% else %}--{% endif %}</div>
+        <div class="score-label">Wellness Score</div>
+        <div class="score-status {% if wellness_score and wellness_score >= 70 %}doing-well{% elif wellness_score and wellness_score >= 50 %}moderate{% else %}needs-attention{% endif %}">
+            {% if wellness_status %}{{ wellness_status }}{% else %}Log moods to see your score{% endif %}
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width:{% if wellness_score %}{{ wellness_score }}{% else %}0{% endif %}%;"></div>
+        </div>
+    </div>
+</div>
+>>>>>>> b8e13df (Fixed login, logout, dashboard errors, and updated app.py)
             
             <!-- Quick Stats -->
             <div class="stats-row">
@@ -120,7 +140,7 @@
                 <a href="{{ url_for('mood') }}" class="quick-btn">😊 Log Mood</a>
                 <a href="{{ url_for('booking') }}" class="quick-btn">📅 Book Appt</a>
                 <a href="{{ url_for('forum') }}" class="quick-btn">👥 Study Buddy</a>
-                <a href="{{ url_for('workload') }}" class="quick-btn">📚 Resources</a>
+                <a href="{{ url_for('workload') }}" class="quick-btn">📊 Workload</a>
             </div>
         </main>
     </div>

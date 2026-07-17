@@ -1,6 +1,5 @@
 # app.py
 # Vital Campus - Main Flask Application
-# NPRT630 Project - Phase 4 Implementation
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -91,7 +90,17 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password) and user.is_active:
             login_user(user)
-            flash(f'Welcome back, {user.preferred_name}!', 'success')
+            
+            # Check if user has logged in before
+            if user.last_login:
+                flash(f'Welcome back, {user.preferred_name}!', 'success')
+            else:
+                flash(f'Welcome, {user.preferred_name}! 🌿 This is your first time using Vital Campus.', 'success')
+            
+            # Update last login time
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password.', 'error')
@@ -145,13 +154,16 @@ def logout():
 def dashboard():
     today = date.today()
     
+    # Get today's mood
     today_mood = MoodEntry.query.filter_by(user_id=current_user.id, log_date=today).first()
     
+    # Get last 7 days of moods
     week_moods = MoodEntry.query.filter(
         MoodEntry.user_id == current_user.id,
         MoodEntry.log_date >= today - timedelta(days=7)
     ).order_by(MoodEntry.log_date).all()
     
+    # Get upcoming appointments
     upcoming_appointments = Appointment.query.filter(
         Appointment.student_id == current_user.id,
         Appointment.appointment_date >= today,
@@ -173,12 +185,31 @@ def dashboard():
     
     crisis_triggered = low_mood_streak >= 2
     
+    # Calculate wellness score
+    wellness_score = None
+    wellness_status = 'No data yet'
+    
+    if week_moods:
+        avg_mood = sum(m.mood_score for m in week_moods) / len(week_moods)
+        wellness_score = round(avg_mood * 10)
+        if wellness_score >= 70:
+            wellness_status = 'Doing Well 😊'
+        elif wellness_score >= 50:
+            wellness_status = 'Moderate 😐'
+        else:
+            wellness_status = 'Needs Attention 😔'
+    else:
+        wellness_score = None
+        wellness_status = 'Log moods to see your score'
+    
     return render_template('dashboard.html',
                          today_mood=today_mood,
                          week_moods=week_moods,
                          upcoming_appointments=upcoming_appointments,
                          low_mood_streak=low_mood_streak,
-                         crisis_triggered=crisis_triggered)
+                         crisis_triggered=crisis_triggered,
+                         wellness_score=wellness_score,
+                         wellness_status=wellness_status)
 
 @app.route('/mood', methods=['GET', 'POST'])
 @login_required
@@ -395,6 +426,10 @@ def not_found_error(error):
 @app.errorhandler(500)
 def internal_error(error):
     return render_template('500.html'), 500
+
+@app.route('/test')
+def test():
+    return "Vital Campus is running! 🚀"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

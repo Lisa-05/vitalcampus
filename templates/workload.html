@@ -72,8 +72,35 @@
             
             <div class="card">
                 <h3>📚 Generate Study Plan</h3>
-                <button class="btn btn-primary" onclick="alert('Study plan generated! Check your email.')">📅 Generate Study Schedule</button>
-            </div>
+                <button class="btn btn-primary" onclick="generateStudyPlan()">📅 Generate Study Schedule</button>
+
+<div id="studyPlanResult" style="display:none; margin-top:15px; padding:15px; background:#f5f5f5; border-radius:12px;">
+    <h4>📋 Your Study Plan</h4>
+    <div id="studyPlanContent"></div>
+</div>
+
+<script>
+function generateStudyPlan() {
+    // Get the current forecast
+    const stressLevel = document.querySelector('.card .stress-level')?.innerText || 'High';
+    
+    // Generate a simple study plan
+    const plan = `
+        <strong>Based on your stress level (${stressLevel}):</strong><br><br>
+        <strong>Monday:</strong> Review lecture notes (2 hrs)<br>
+        <strong>Tuesday:</strong> Practice questions (2 hrs)<br>
+        <strong>Wednesday:</strong> Create study outline (1.5 hrs)<br>
+        <strong>Thursday:</strong> Group study session (2 hrs)<br>
+        <strong>Friday:</strong> Review and revise (2 hrs)<br>
+        <strong>Weekend:</strong> Rest and recover 🌿<br><br>
+        <em>💡 Tip: Take a 10-min break every hour</em>
+    `;
+    
+    document.getElementById('studyPlanContent').innerHTML = plan;
+    document.getElementById('studyPlanResult').style.display = 'block';
+    alert('📚 Your study plan has been generated! Check below.');
+}
+</script>
             
             <div class="card">
                 <h3>📝 Manual Deadline Entry</h3>

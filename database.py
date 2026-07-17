@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), default='student')
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
     
     moods = db.relationship('MoodEntry', backref='user', lazy=True)
     appointments = db.relationship('Appointment', backref='user', lazy=True)
