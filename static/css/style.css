@@ -38,8 +38,10 @@ body {
 
 /* SIDEBAR */
 .sidebar {
-    width: 240px;
-    background: var(--teal-900);
+   width: 240px;
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
+        url("../images/Cozy%20Sunlit%20Library%20Study%20Corner.png") center / cover no-repeat;
     color: white;
     padding: 20px 0;
     position: fixed;
@@ -294,7 +296,7 @@ label.chip input { display: none; }
 /* AUTH */
 .auth-page { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; }
 .auth-hero {
-    background: linear-gradient(135deg, var(--teal-900), var(--teal-700));
+   background: url("../images/back.jpeg") center / cover no-repeat;
     color: white; padding: 60px;
     display: flex; flex-direction: column; justify-content: space-between;
     position: relative; overflow: hidden;
