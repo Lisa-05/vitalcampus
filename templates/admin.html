@@ -12,25 +12,25 @@
             <div>
                 <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
                 <nav class="sidebar-nav">
-                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
-                    <a href="{{ url_for('mood') }}"><i>😊</i><span>Mood</span></a>
-                    <a href="{{ url_for('booking') }}"><i>📅</i><span>Appointments</span></a>
-                    <a href="{{ url_for('workload') }}"><i>📊</i><span>Workload</span></a>
-                    <a href="{{ url_for('forum') }}"><i>👥</i><span>Community</span></a>
-                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
-                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
-                    <a href="{{ url_for('notifications') }}"><i>🔔</i><span>Notifications</span></a>
-                    <a href="{{ url_for('admin') }}" class="active"><i>📈</i><span>Admin</span></a>
+                    <a href="{{ url_for('admin') }}" class="active"><i>📈</i><span>Overview</span></a>
+                    <a href="{{ url_for('admin') }}"><i>👥</i><span>Users</span></a>
+                    <a href="{{ url_for('admin') }}"><i>😊</i><span>Mood Analytics</span></a>
+                    <a href="{{ url_for('admin') }}"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('admin') }}"><i>💬</i><span>Community</span></a>
+                    <a href="{{ url_for('admin') }}"><i>📤</i><span>Reports</span></a>
                 </nav>
             </div>
             <div>
                 <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
                     <strong>⚠ Need urgent help?</strong>
-                    Crisis support
+                    Emergency contacts
                 </button>
                 <div class="sidebar-user">
                     <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
-                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>Administrator</div></div>
+                    <div class="sidebar-user-info">
+                        <div>{{ current_user.preferred_name }}</div>
+                        <div>Administrator</div>
+                    </div>
                     <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
                 </div>
             </div>
@@ -44,6 +44,12 @@
                     <p>Anonymised insights across the university — one calm dashboard for the whole campus.</p>
                 </div>
             </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}{% endif %}
+            {% endwith %}
 
             <div class="stats-row">
                 <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-number">{{ total_users }}</div><div class="stat-label">Total Users</div></div>
@@ -63,15 +69,30 @@
             </div>
 
             <div class="card">
+                <h3>📊 System Summary</h3>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="padding: 15px; background: var(--teal-50); border-radius: 12px;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--teal-700); font-weight: 700; letter-spacing: 1px;">Counsellors</div>
+                        <div style="font-size: 28px; font-weight: 700; color: var(--teal-700); margin-top: 5px;">{{ total_counsellors }}</div>
+                    </div>
+                    <div style="padding: 15px; background: var(--amber-100); border-radius: 12px;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: var(--amber-500); font-weight: 700; letter-spacing: 1px;">Appointments</div>
+                        <div style="font-size: 28px; font-weight: 700; color: var(--amber-500); margin-top: 5px;">{{ total_appointments }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
                 <h3>📤 Export Reports</h3>
+                <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Download anonymised wellbeing data for reporting purposes.</p>
                 <div class="chip-group">
                     <button class="chip" style="background: var(--teal-600); color: white; border-color: var(--teal-600);" onclick="alert('PDF Report generated!')">📊 Export PDF</button>
                     <button class="chip" onclick="alert('CSV file exported!')">📄 Export CSV</button>
+                    <button class="chip" onclick="alert('Email sent to Dean!')">📧 Email to Dean</button>
                 </div>
             </div>
         </main>
     </div>
-
     {% include 'crisis_modal.html' %}
 </body>
 </html>

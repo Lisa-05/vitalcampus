@@ -1,6 +1,7 @@
 # app.py
 # Vital Campus - Main Flask Application
 
+from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -27,6 +28,17 @@ login_manager.login_message = 'Please log in to access this page.'
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+def student_only(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if current_user.role == 'admin':
+            flash('Admins use the admin panel.', 'info')
+            return redirect(url_for('admin'))
+        return f(*args, **kwargs)
+    return decorated
+
 
 with app.app_context():
     db.create_all()
@@ -97,6 +109,8 @@ with app.app_context():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
+        if current_user.role == 'admin':
+            return redirect(url_for('admin'))
         return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
 
@@ -114,6 +128,8 @@ def login():
                 flash(f'Welcome, {user.preferred_name}! 🌿 This is your first time using Vital Campus.', 'success')
             user.last_login = datetime.utcnow()
             db.session.commit()
+            if user.role == 'admin':
+                return redirect(url_for('admin'))
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password.', 'error')
@@ -159,6 +175,7 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/dashboard')
+@student_only
 @login_required
 def dashboard():
     today = date.today()
@@ -228,6 +245,7 @@ def dashboard():
                          greeting=greeting)
 
 @app.route('/mood', methods=['GET', 'POST'])
+@student_only
 @login_required
 def mood():
     if request.method == 'POST':
@@ -280,6 +298,7 @@ def mood():
     return render_template('mood.html')
 
 @app.route('/booking', methods=['GET', 'POST'])
+@student_only
 @login_required
 def booking():
     if request.method == 'POST':
@@ -333,6 +352,7 @@ def booking():
     return render_template('booking.html', counsellors=counsellors, today=today)
 
 @app.route('/forum', methods=['GET', 'POST'])
+@student_only
 @login_required
 def forum():
     if request.method == 'POST':
@@ -354,6 +374,7 @@ def forum():
     return render_template('forum.html', posts=posts)
 
 @app.route('/forum/reply/<int:post_id>', methods=['POST'])
+@student_only
 @login_required
 def forum_reply(post_id):
     content = request.form.get('content')
@@ -375,6 +396,7 @@ def forum_reply(post_id):
     return redirect(url_for('forum'))
 
 @app.route('/workload', methods=['GET', 'POST'])
+@student_only
 @login_required
 def workload():
     today = date.today()
@@ -427,6 +449,7 @@ def workload():
                          saved_plans=saved_plans)
 
 @app.route('/workload/deadline/<int:deadline_id>/delete', methods=['POST'])
+@student_only
 @login_required
 def delete_deadline(deadline_id):
     deadline = Deadline.query.get_or_404(deadline_id)
@@ -439,6 +462,7 @@ def delete_deadline(deadline_id):
     return redirect(url_for('workload'))
 
 @app.route('/workload/save-plan', methods=['POST'])
+@student_only
 @login_required
 def save_study_plan():
     plan_text = request.form.get('plan_text', '')
@@ -458,6 +482,7 @@ def save_study_plan():
     return redirect(url_for('workload'))
 
 @app.route('/workload/saved-plan/<int:plan_id>/delete', methods=['POST'])
+@student_only
 @login_required
 def delete_saved_plan(plan_id):
     plan = Notification.query.get_or_404(plan_id)
@@ -470,6 +495,7 @@ def delete_saved_plan(plan_id):
     return redirect(url_for('workload'))
 
 @app.route('/resources')
+@student_only
 @login_required
 def resources():
     all_resources = Resource.query.order_by(Resource.created_at.asc()).all()
@@ -477,6 +503,7 @@ def resources():
     return render_template('resources.html', resources=all_resources, featured=featured)
 
 @app.route('/study-buddy', methods=['GET', 'POST'])
+@student_only
 @login_required
 def studybuddy():
     my_profile = StudyBuddyProfile.query.filter_by(user_id=current_user.id).first()
@@ -527,6 +554,7 @@ def studybuddy():
     return render_template('studybuddy.html', my_profile=my_profile, matches=matches)
 
 @app.route('/notifications')
+@student_only
 @login_required
 def notifications():
     user_notifications = Notification.query.filter(
