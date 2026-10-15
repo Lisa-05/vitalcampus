@@ -3,70 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Appointment - Vital Campus</title>
+    <title>Appointments - Vital Campus</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app">
-        <header>
-            <div class="header-content">
-                <h1>📅 Book Appointment</h1>
-                <p>Find the right support</p>
-                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
+                    <a href="{{ url_for('mood') }}"><i>😊</i><span>Mood</span></a>
+                    <a href="{{ url_for('booking') }}" class="active"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('workload') }}"><i>📊</i><span>Workload</span></a>
+                    <a href="{{ url_for('forum') }}"><i>👥</i><span>Community</span></a>
+                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
+                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
+                    <a href="{{ url_for('notifications') }}"><i>🔔</i><span>Notifications</span></a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin') }}"><i>📈</i><span>Admin</span></a>
+                    {% endif %}
+                </nav>
             </div>
-        </header>
-        
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
-            <a href="{{ url_for('mood') }}">😊 Mood</a>
-            <a href="{{ url_for('workload') }}">📊 Workload</a>
-            <a href="{{ url_for('booking') }}" class="active">📅 Book</a>
-            <a href="{{ url_for('forum') }}">💬 Forum</a>
-            <a href="{{ url_for('admin') }}">📊 Reports</a>
-        </nav>
-        
-        <main>
+            <div>
+                <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
+                    <strong>⚠ Need urgent help?</strong>
+                    Crisis support
+                </button>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
+                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>NAS · {{ current_user.year_of_study }}</div></div>
+                    <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="eyebrow">Campus Support</div>
+                    <h1>Book an appointment</h1>
+                    <p>Choose the support you need. You can review everything before confirming.</p>
+                </div>
+            </div>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}{% endif %}
             {% endwith %}
-            
+
             <form method="POST">
                 <div class="card">
-                    <h3>Service Type</h3>
+                    <h3>What kind of support do you need?</h3>
+                    <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Select the service that best fits. You can change this later.</p>
                     <div class="chip-group">
-                        <button type="button" class="chip service-chip" data-service="Personal Counselling">Personal Counselling</button>
+                        <button type="button" class="chip service-chip active" data-service="Personal Counselling">Personal Counselling</button>
                         <button type="button" class="chip service-chip" data-service="Academic Advising">Academic Advising</button>
                         <button type="button" class="chip service-chip" data-service="Financial Aid">Financial Aid</button>
                     </div>
                     <input type="hidden" name="service_type" id="selectedService" value="Personal Counselling">
                 </div>
-                
+
                 <div class="card">
-                    <h3>✏️ Reason (200 char limit)</h3>
-                    <input type="text" name="reason" placeholder="Need help with exam anxiety and workload..." maxlength="200" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                    <h3>What would you like help with?</h3>
+                    <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">A short note helps your advisor prepare. Only the support team will see it.</p>
+                    <textarea name="reason" rows="4" maxlength="200" placeholder="For example: I've been feeling overwhelmed with my workload…" style="width:100%; padding:11px 14px; border:1px solid var(--ink-100); border-radius:10px; font-family:inherit;"></textarea>
                 </div>
-                
+
                 <div class="card">
-                    <h3>👤 Select Counsellor</h3>
+                    <h3>Choose a counsellor</h3>
                     <div class="chip-group">
                         {% for counsellor in counsellors %}
-                            <button type="button" class="chip counsellor-chip" data-counsellor="{{ counsellor.id }}">
-                                {{ counsellor.full_name }} ({{ counsellor.specialisation }})
-                            </button>
+                        <button type="button" class="chip counsellor-chip" data-counsellor="{{ counsellor.id }}">
+                            {{ counsellor.full_name }} · {{ counsellor.specialisation }}
+                        </button>
                         {% endfor %}
                     </div>
                     <input type="hidden" name="counsellor_id" id="selectedCounsellor" value="">
                 </div>
-                
+
                 <div class="card">
-                    <h3>📅 Select Date & Time</h3>
+                    <h3>Pick a date and time</h3>
                     <div class="form-group">
                         <label>Date</label>
-                        <input type="date" name="appointment_date" required min="{{ today }}" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                        <input type="date" name="appointment_date" required min="{{ today }}">
                     </div>
                     <div class="form-group">
                         <label>Time</label>
@@ -81,12 +102,12 @@
                         <input type="hidden" name="appointment_time" id="selectedTime" value="">
                     </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary">Confirm Appointment</button>
+
+                <button type="submit" class="btn btn-primary btn-block" style="padding:16px;">Confirm Appointment</button>
             </form>
         </main>
     </div>
-    
+
     <script>
         document.querySelectorAll('.service-chip').forEach(chip => {
             chip.addEventListener('click', function() {
@@ -95,8 +116,6 @@
                 document.getElementById('selectedService').value = this.dataset.service;
             });
         });
-        document.querySelector('.service-chip').classList.add('active');
-        
         document.querySelectorAll('.counsellor-chip').forEach(chip => {
             chip.addEventListener('click', function() {
                 document.querySelectorAll('.counsellor-chip').forEach(c => c.classList.remove('active'));
@@ -104,7 +123,6 @@
                 document.getElementById('selectedCounsellor').value = this.dataset.counsellor;
             });
         });
-        
         document.querySelectorAll('.time-chip').forEach(chip => {
             chip.addEventListener('click', function() {
                 document.querySelectorAll('.time-chip').forEach(c => c.classList.remove('active'));
@@ -113,5 +131,7 @@
             });
         });
     </script>
+
+    {% include 'crisis_modal.html' %}
 </body>
 </html>

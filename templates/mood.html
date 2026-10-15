@@ -3,105 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mood Tracker - Vital Campus</title>
+    <title>Mood - Vital Campus</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app">
-        <header>
-            <div class="header-content">
-                <h1>😊 Mood Tracker</h1>
-                <p>How are you feeling today?</p>
-                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
+                    <a href="{{ url_for('mood') }}" class="active"><i>😊</i><span>Mood</span></a>
+                    <a href="{{ url_for('booking') }}"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('workload') }}"><i>📊</i><span>Workload</span></a>
+                    <a href="{{ url_for('forum') }}"><i>👥</i><span>Community</span></a>
+                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
+                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
+                    <a href="{{ url_for('notifications') }}"><i>🔔</i><span>Notifications</span></a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin') }}"><i>📈</i><span>Admin</span></a>
+                    {% endif %}
+                </nav>
             </div>
-        </header>
-        
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
-            <a href="{{ url_for('mood') }}" class="active">😊 Mood</a>
-            <a href="{{ url_for('workload') }}">📊 Workload</a>
-            <a href="{{ url_for('booking') }}">📅 Book</a>
-            <a href="{{ url_for('forum') }}">💬 Forum</a>
-            <a href="{{ url_for('admin') }}">📊 Reports</a>
-        </nav>
-        
-        <main>
+            <div>
+                <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
+                    <strong>⚠ Need urgent help?</strong>
+                    Crisis support
+                </button>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
+                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>NAS · {{ current_user.year_of_study }}</div></div>
+                    <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="eyebrow">Daily Check-in</div>
+                    <h1>How are you feeling today?</h1>
+                    <p>There are no right answers. Take a moment and notice what is present.</p>
+                </div>
+            </div>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}{% endif %}
             {% endwith %}
-            
+
             <form method="POST">
                 <div class="card">
-                    <h3>How are you feeling today?</h3>
-                    
-                    <div class="emoji-row">
-                        <span class="emoji" data-mood="8">😊</span>
-                        <span class="emoji" data-mood="5">😐</span>
-                        <span class="emoji" data-mood="2">😔</span>
-                    </div>
-                    
-                    <div class="mood-slider">
-                        <input type="range" class="slider" name="rating" min="1" max="10" value="5" id="moodSlider">
-                        <div class="mood-value">Today: <span id="moodValue">5</span>/10</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>😴 Sleep Quality</label>
-                        <div class="chip-group">
-                            <button type="button" class="chip sleep-chip" data-sleep="Poor">Poor</button>
-                            <button type="button" class="chip sleep-chip" data-sleep="Fair">Fair</button>
-                            <button type="button" class="chip sleep-chip" data-sleep="Good">Good</button>
-                        </div>
-                        <input type="hidden" name="sleep_quality" id="selectedSleep" value="Fair">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>🏷️ Stress Triggers (select all that apply)</label>
-                        <div class="chip-group">
-                            <button type="button" class="chip trigger-chip" data-trigger="Assignments">Assignments</button>
-                            <button type="button" class="chip trigger-chip" data-trigger="Finances">Finances</button>
-                            <button type="button" class="chip trigger-chip" data-trigger="Relationships">Relationships</button>
-                            <button type="button" class="chip trigger-chip" data-trigger="Social">Social</button>
-                            <button type="button" class="chip trigger-chip" data-trigger="Health">Health</button>
-                            <button type="button" class="chip trigger-chip" data-trigger="Other">Other</button>
-                        </div>
-                        <input type="hidden" name="stress_triggers" id="selectedTriggers" value="">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>✏️ Optional Note (120 char limit)</label>
-                        <input type="text" name="notes" placeholder="How are you feeling?" maxlength="120" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">💾 Save Today's Check-in</button>
-                    
-                    <div class="privacy-note">🔒 Only you can see this entry</div>
+                    <h3>1 · Overall, how do you feel?</h3>
+                    <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Choose a number from 1 (very low) to 10 (excellent).</p>
+                    <input type="range" class="slider" name="rating" min="1" max="10" value="5" id="moodSlider">
+                    <div class="mood-value">Today: <span id="moodValue">5</span>/10</div>
                 </div>
+
+                <div class="card">
+                    <h3>2 · How did you sleep?</h3>
+                    <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Think about both quality and restfulness.</p>
+                    <div class="chip-group">
+                        <button type="button" class="chip sleep-chip" data-sleep="Poor">Poor</button>
+                        <button type="button" class="chip sleep-chip" data-sleep="Fair">Fair</button>
+                        <button type="button" class="chip sleep-chip" data-sleep="Good">Good</button>
+                    </div>
+                    <input type="hidden" name="sleep_quality" id="selectedSleep" value="Fair">
+                </div>
+
+                <div class="card">
+                    <h3>3 · What's adding pressure?</h3>
+                    <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Select any that apply. You can leave this blank.</p>
+                    <div class="chip-group">
+                        <button type="button" class="chip trigger-chip" data-trigger="Assignments">Assignments</button>
+                        <button type="button" class="chip trigger-chip" data-trigger="Finances">Finances</button>
+                        <button type="button" class="chip trigger-chip" data-trigger="Relationships">Relationships</button>
+                        <button type="button" class="chip trigger-chip" data-trigger="Social">Social</button>
+                        <button type="button" class="chip trigger-chip" data-trigger="Health">Health</button>
+                        <button type="button" class="chip trigger-chip" data-trigger="Other">Other</button>
+                    </div>
+                    <input type="hidden" name="stress_triggers" id="selectedTriggers" value="">
+                </div>
+
+                <div class="card">
+                    <h3>4 · Anything else you'd like to note?</h3>
+                    <textarea name="notes" rows="3" maxlength="120" placeholder="Optional — how are you feeling?" style="width:100%; padding:11px 14px; border:1px solid var(--ink-100); border-radius:10px; font-size:14px; font-family:inherit;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 16px; font-size: 15px;">Save Today's Check-in</button>
+                <p style="text-align: center; color: var(--ink-500); font-size: 12px; margin-top: 15px;">🔒 Only you can see this entry</p>
             </form>
         </main>
     </div>
-    
+
     <script>
         const slider = document.getElementById('moodSlider');
         const moodValue = document.getElementById('moodValue');
-        slider.addEventListener('input', function() {
-            moodValue.textContent = this.value;
-        });
-        
-        document.querySelectorAll('.emoji').forEach(emoji => {
-            emoji.addEventListener('click', function() {
-                const mood = this.dataset.mood;
-                slider.value = mood;
-                moodValue.textContent = mood;
-                document.querySelectorAll('.emoji').forEach(e => e.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-        
+        slider.addEventListener('input', function() { moodValue.textContent = this.value; });
+
         document.querySelectorAll('.sleep-chip').forEach(chip => {
             chip.addEventListener('click', function() {
                 document.querySelectorAll('.sleep-chip').forEach(c => c.classList.remove('active'));
@@ -110,20 +110,20 @@
             });
         });
         document.querySelector('.sleep-chip').classList.add('active');
-        
+
         let selectedTriggers = [];
         document.querySelectorAll('.trigger-chip').forEach(chip => {
             chip.addEventListener('click', function() {
                 this.classList.toggle('active');
-                const trigger = this.dataset.trigger;
-                if (selectedTriggers.includes(trigger)) {
-                    selectedTriggers = selectedTriggers.filter(t => t !== trigger);
-                } else {
-                    selectedTriggers.push(trigger);
-                }
+                const t = this.dataset.trigger;
+                selectedTriggers = selectedTriggers.includes(t)
+                    ? selectedTriggers.filter(x => x !== t)
+                    : [...selectedTriggers, t];
                 document.getElementById('selectedTriggers').value = selectedTriggers.join(', ');
             });
         });
     </script>
+
+    {% include 'crisis_modal.html' %}
 </body>
 </html>

@@ -3,76 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peer Forum - Vital Campus</title>
+    <title>Community - Vital Campus</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app">
-        <header>
-            <div class="header-content">
-                <h1>💬 Peer Support Forum</h1>
-                <p>You are posting as: <strong>User{{ current_user.id % 1000 }}</strong> 🔒</p>
-                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
+                    <a href="{{ url_for('mood') }}"><i>😊</i><span>Mood</span></a>
+                    <a href="{{ url_for('booking') }}"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('workload') }}"><i>📊</i><span>Workload</span></a>
+                    <a href="{{ url_for('forum') }}" class="active"><i>👥</i><span>Community</span></a>
+                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
+                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
+                    <a href="{{ url_for('notifications') }}"><i>🔔</i><span>Notifications</span></a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin') }}"><i>📈</i><span>Admin</span></a>
+                    {% endif %}
+                </nav>
             </div>
-        </header>
-        
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
-            <a href="{{ url_for('mood') }}">😊 Mood</a>
-            <a href="{{ url_for('workload') }}">📊 Workload</a>
-            <a href="{{ url_for('booking') }}">📅 Book</a>
-            <a href="{{ url_for('forum') }}" class="active">💬 Forum</a>
-            <a href="{{ url_for('admin') }}">📊 Reports</a>
-        </nav>
-        
-        <main>
+            <div>
+                <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
+                    <strong>⚠ Need urgent help?</strong>
+                    Crisis support
+                </button>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
+                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>NAS · {{ current_user.year_of_study }}</div></div>
+                    <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="eyebrow">Anonymous Peer Support</div>
+                    <h1>A community that gets it</h1>
+                    <p>Share what is on your mind, listen, and support one another — without sharing your identity.</p>
+                </div>
+            </div>
+
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}{% endif %}
             {% endwith %}
-            
+
             <div class="card">
-                <h3>✏️ Write a new post</h3>
+                <h3>✏️ Share with the community</h3>
+                <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">You can ask for support, share an experience, or offer encouragement.</p>
                 <form method="POST">
                     <div class="form-group">
-                        <select name="category" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
-                            <option value="Academics">📚 Academics</option>
-                            <option value="Mental Health">🧠 Mental Health</option>
-                            <option value="Social">👥 Social</option>
-                            <option value="Finance">💰 Finance</option>
+                        <label>Category</label>
+                        <select name="category">
+                            <option value="Academics">Academics</option>
+                            <option value="Mental Health">Mental Health</option>
+                            <option value="Social">Social</option>
+                            <option value="Finance">Finance</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <textarea name="content" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;" placeholder="What's on your mind?"></textarea>
+                        <textarea name="content" rows="4" maxlength="500" placeholder="What would you like to share?" style="width:100%; padding:11px 14px; border:1px solid var(--ink-100); border-radius:10px; font-family:inherit;"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width:auto; padding:10px 20px;">📤 Post Anonymously</button>
+                    <button type="submit" class="btn btn-primary">Post anonymously</button>
                 </form>
             </div>
-            
-            <h3 style="padding:0 15px;">📋 Recent Posts</h3>
+
             {% for post in posts %}
             <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <strong>{{ post.anonymous_alias }}</strong>
-                    <span style="font-size:11px; color:gray;">{{ post.posted_at.strftime('%b %d, %H:%M') }}</span>
+                    <span style="font-size:11px; color:var(--ink-500);">{{ post.posted_at.strftime('%b %d · %H:%M') }}</span>
                 </div>
-                <div style="font-size:11px; color:#666; margin:5px 0;">
-                    <span style="background:#eee; padding:2px 8px; border-radius:12px;">{{ post.category }}</span>
+                <div style="font-size:11px; color:var(--ink-500); margin-bottom:10px;">
+                    <span style="background: var(--teal-50); padding:2px 10px; border-radius:12px; color: var(--teal-700);">{{ post.category }}</span>
                 </div>
                 <p>{{ post.content }}</p>
-                <div style="font-size:11px; color:gray; margin-top:8px;">
-                    💬 {{ post.replies|length }} replies · ❤️ 0 · 🚩 Flag
-                </div>
+                <div style="font-size:11px; color:var(--ink-500); margin-top:10px;">💬 {{ post.replies|length }} replies · ❤️ 0 · 🚩 Flag</div>
             </div>
             {% else %}
-            <div class="card" style="text-align:center; color:gray;">
-                <p>No posts yet. Be the first to share!</p>
+            <div class="card" style="text-align:center; color:var(--ink-500); padding: 40px;">
+                <p>No community posts match this category yet.</p>
             </div>
             {% endfor %}
         </main>
     </div>
+
+    {% include 'crisis_modal.html' %}
 </body>
 </html>

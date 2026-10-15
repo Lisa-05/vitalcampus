@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - Vital Campus</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
+                    <a href="{{ url_for('mood') }}"><i>😊</i><span>Mood</span></a>
+                    <a href="{{ url_for('booking') }}"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('workload') }}"><i>📊</i><span>Workload</span></a>
+                    <a href="{{ url_for('forum') }}"><i>👥</i><span>Community</span></a>
+                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
+                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
+                    <a href="{{ url_for('notifications') }}" class="active"><i>🔔</i><span>Notifications</span></a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin') }}"><i>📈</i><span>Admin</span></a>
+                    {% endif %}
+                </nav>
+            </div>
+            <div>
+                <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
+                    <strong>⚠ Need urgent help?</strong>
+                    Crisis support
+                </button>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
+                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>NAS · {{ current_user.year_of_study }}</div></div>
+                    <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="eyebrow">Stay up to date</div>
+                    <h1>Notifications</h1>
+                    <p>A quiet place for your reminders, confirmations, and community updates.</p>
+                </div>
+            </div>
+
+            {% if notifications %}
+                {% for n in notifications %}
+                <div class="card" style="display: flex; gap: 20px; align-items: start;">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--teal-50); color: var(--teal-600); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                        {% if n.type == 'appointment' %}📅{% elif n.type == 'crisis' %}⚠{% else %}🔔{% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        <strong style="display: block; margin-bottom: 4px;">{{ n.type|title }}</strong>
+                        <p style="color: var(--ink-500); font-size: 14px; margin-bottom: 6px;">{{ n.message }}</p>
+                        <span style="font-size: 12px; color: var(--ink-300);">{{ n.sent_at.strftime('%Y/%m/%d · %H:%M') }}</span>
+                    </div>
+                    {% if not n.is_read %}
+                    <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--teal-500); margin-top: 6px;"></div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card" style="text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">🔔</div>
+                    <h3 style="margin-bottom: 8px;">No notifications yet</h3>
+                    <p style="color: var(--ink-500); font-size: 14px;">Your appointment confirmations, reminders, and community updates will appear here.</p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+
+    {% include 'crisis_modal.html' %}
+</body>
+</html>

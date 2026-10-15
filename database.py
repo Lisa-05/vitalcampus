@@ -1,4 +1,5 @@
-
+# database.py
+# Vital Campus - Database Models
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -7,9 +8,10 @@ import uuid
 
 db = SQLAlchemy()
 
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     student_number = db.Column(db.String(15), unique=True, nullable=False)
@@ -22,19 +24,19 @@ class User(UserMixin, db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     last_login = db.Column(db.DateTime, nullable=True)
-    
+
     moods = db.relationship('MoodEntry', backref='user', lazy=True)
     appointments = db.relationship('Appointment', backref='user', lazy=True)
     posts = db.relationship('PeerPost', backref='user', lazy=True)
     notifications = db.relationship('Notification', backref='user', lazy=True)
-    
+
     def __repr__(self):
         return f'<User {self.preferred_name}>'
 
 
 class MoodEntry(db.Model):
     __tablename__ = 'mood_entries'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     entry_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -44,14 +46,14 @@ class MoodEntry(db.Model):
     notes = db.Column(db.String(120), nullable=True)
     logged_at = db.Column(db.DateTime, default=datetime.utcnow)
     log_date = db.Column(db.Date, default=date.today)
-    
+
     def __repr__(self):
         return f'<MoodEntry {self.mood_score}/10 - {self.log_date}>'
 
 
 class Counsellor(db.Model):
     __tablename__ = 'counsellors'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     counsellor_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     full_name = db.Column(db.String(120), nullable=False)
@@ -59,34 +61,34 @@ class Counsellor(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     is_available = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     appointments = db.relationship('Appointment', backref='counsellor', lazy=True)
-    
+
     def __repr__(self):
         return f'<Counsellor {self.full_name}>'
 
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     appointment_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     student_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     counsellor_id = db.Column(db.Integer, db.ForeignKey('counsellors.id'), nullable=False)
-    service_type = db.Column(db.String(20), nullable=False)
+    service_type = db.Column(db.String(30), nullable=False)
     reason = db.Column(db.String(200), nullable=True)
     appointment_date = db.Column(db.Date, nullable=False)
     appointment_time = db.Column(db.String(20), nullable=False)
     status = db.Column(db.String(15), default='pending')
     booked_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     def __repr__(self):
         return f'<Appointment {self.service_type} - {self.status}>'
 
 
 class PeerPost(db.Model):
     __tablename__ = 'peer_posts'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -95,16 +97,16 @@ class PeerPost(db.Model):
     category = db.Column(db.String(20), nullable=False)
     is_flagged = db.Column(db.Boolean, default=False)
     posted_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     replies = db.relationship('PeerReply', backref='post', lazy=True)
-    
+
     def __repr__(self):
         return f'<PeerPost by {self.anonymous_alias}>'
 
 
 class PeerReply(db.Model):
     __tablename__ = 'peer_replies'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     reply_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     post_id = db.Column(db.Integer, db.ForeignKey('peer_posts.id'), nullable=False)
@@ -112,14 +114,14 @@ class PeerReply(db.Model):
     anonymous_alias = db.Column(db.String(40), nullable=False)
     content = db.Column(db.String(300), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     def __repr__(self):
         return f'<PeerReply to {self.post_id}>'
 
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     notification_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -128,14 +130,14 @@ class Notification(db.Model):
     channel = db.Column(db.String(10), nullable=False)
     is_read = db.Column(db.Boolean, default=False)
     sent_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     def __repr__(self):
         return f'<Notification {self.type}>'
 
 
 class StressForecast(db.Model):
     __tablename__ = 'stress_forecasts'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     forecast_id = db.Column(db.String(36), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -143,3 +145,55 @@ class StressForecast(db.Model):
     stress_level = db.Column(db.String(20), nullable=False)
     recommendation = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<StressForecast {self.stress_level}>'
+
+
+class Resource(db.Model):
+    __tablename__ = 'resources'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(120), nullable=False)
+    description = db.Column(db.String(300), nullable=False)
+    category = db.Column(db.String(30), nullable=False)
+    duration = db.Column(db.String(20), nullable=False)
+    icon = db.Column(db.String(10), default='📚')
+    featured = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Resource {self.title}>'
+
+
+class StudyBuddyProfile(db.Model):
+    __tablename__ = 'study_buddy_profiles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
+    courses = db.Column(db.String(300), nullable=False)
+    learning_style = db.Column(db.String(30), nullable=False)
+    study_method = db.Column(db.String(20), nullable=False)
+    bio = db.Column(db.String(300), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('User', backref=db.backref('study_buddy_profile', uselist=False))
+
+    def __repr__(self):
+        return f'<StudyBuddyProfile user={self.user_id}>'
+
+
+class Deadline(db.Model):
+    __tablename__ = 'deadlines'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    course = db.Column(db.String(100), nullable=False)
+    due_date = db.Column(db.Date, nullable=False)
+    weighting = db.Column(db.Integer, nullable=False, default=20)
+    completed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Deadline {self.course} - {self.due_date}>'

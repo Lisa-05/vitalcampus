@@ -3,121 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workload Forecast - Vital Campus</title>
+    <title>Workload - Vital Campus</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="app">
-        <header>
-            <div class="header-content">
-                <h1>📊 Workload Forecaster</h1>
-                <p>Plan ahead for stressful weeks</p>
-                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    <div class="layout">
+        <aside class="sidebar">
+            <div>
+                <div class="sidebar-brand"><div class="sidebar-brand-icon">✚</div><span>Vital Campus</span></div>
+                <nav class="sidebar-nav">
+                    <a href="{{ url_for('dashboard') }}"><i>🏠</i><span>Dashboard</span></a>
+                    <a href="{{ url_for('mood') }}"><i>😊</i><span>Mood</span></a>
+                    <a href="{{ url_for('booking') }}"><i>📅</i><span>Appointments</span></a>
+                    <a href="{{ url_for('workload') }}" class="active"><i>📊</i><span>Workload</span></a>
+                    <a href="{{ url_for('forum') }}"><i>👥</i><span>Community</span></a>
+                    <a href="{{ url_for('resources') }}"><i>📚</i><span>Resources</span></a>
+                    <a href="{{ url_for('studybuddy') }}"><i>🤝</i><span>Study Buddy</span></a>
+                    <a href="{{ url_for('notifications') }}"><i>🔔</i><span>Notifications</span></a>
+                    {% if current_user.role == 'admin' %}
+                    <a href="{{ url_for('admin') }}"><i>📈</i><span>Admin</span></a>
+                    {% endif %}
+                </nav>
             </div>
-        </header>
-        
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}">🏠 Home</a>
-            <a href="{{ url_for('mood') }}">😊 Mood</a>
-            <a href="{{ url_for('workload') }}" class="active">📊 Workload</a>
-            <a href="{{ url_for('booking') }}">📅 Book</a>
-            <a href="{{ url_for('forum') }}">💬 Forum</a>
-            <a href="{{ url_for('admin') }}">📊 Reports</a>
-        </nav>
-        
-        <main>
+            <div>
+                <button class="sidebar-crisis" onclick="openCrisisModal()" style="cursor:pointer; width:100%; text-align:left; font-family:inherit;">
+                    <strong>⚠ Need urgent help?</strong>
+                    Crisis support
+                </button>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar">{{ current_user.preferred_name[0] }}</div>
+                    <div class="sidebar-user-info"><div>{{ current_user.preferred_name }}</div><div>NAS · {{ current_user.year_of_study }}</div></div>
+                    <a href="{{ url_for('logout') }}" style="margin-left:auto; color:#fff; text-decoration:none; font-size:14px;">↪</a>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="banner">
+                <div class="banner-content">
+                    <div class="eyebrow">Academic Planning</div>
+                    <h1>Workload forecaster</h1>
+                    <p>See busy weeks before they arrive and make a plan that feels manageable.</p>
+                </div>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}{% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}{% endif %}
+            {% endwith %}
+
             <div class="card">
-                <h3>⚠️ Stress Forecast</h3>
-                <div style="font-size:28px; font-weight:bold; color:#D32F2F;">{{ forecast.stress_level }}</div>
-                <div style="font-size:14px; color:#666;">Week of {{ forecast.forecast_date.strftime('%b %d, %Y') }}</div>
-                <div style="margin-top:10px; padding:10px; background:#f5f5f5; border-radius:8px;">
+                <h3>⚠ Stress Forecast</h3>
+                <div style="font-size: 32px; font-weight: 700; color: var(--amber-500);">{{ forecast.stress_level }}</div>
+                <div style="color: var(--ink-500); font-size: 14px;">Week of {{ forecast.forecast_date.strftime('%b %d, %Y') }}</div>
+                <div style="margin-top: 15px; padding: 15px; background: var(--teal-50); border-radius: var(--radius); color: var(--teal-700);">
                     <strong>Recommendation:</strong> {{ forecast.recommendation }}
                 </div>
             </div>
-            
-            <div class="card">
-                <h3>📋 Weekly Stress Bar Chart</h3>
-                <div style="height:100px; display:flex; align-items:end; gap:15px; padding:10px 0;">
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:20px; background:#4CAF50; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Mon</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:35px; background:#FFEB3B; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Tue</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:60px; background:#FF9800; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Wed</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:80px; background:#D32F2F; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Thu</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:70px; background:#D32F2F; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Fri</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:40px; background:#FF9800; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Sat</div>
-                    </div>
-                    <div style="flex:1; text-align:center;">
-                        <div style="height:25px; background:#4CAF50; border-radius:4px;"></div>
-                        <div style="font-size:10px; color:#666;">Sun</div>
-                    </div>
-                </div>
-                <div style="font-size:11px; color:#666; text-align:center;">High stress predicted mid-week</div>
-            </div>
-            
+
             <div class="card">
                 <h3>📚 Generate Study Plan</h3>
-                <button class="btn btn-primary" onclick="generateStudyPlan()">📅 Generate Study Schedule</button>
+                <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Create a personalised weekly study schedule based on your deadlines.</p>
+                <div class="form-group">
+                    <label>Module or subject</label>
+                    <input type="text" id="planModule" placeholder="e.g. HCI Project, Database Systems">
+                </div>
+                <button class="btn btn-primary" onclick="generateStudyPlan()">Generate Study Schedule →</button>
+                <div id="studyPlanResult" style="display:none; margin-top: 20px;">
+                    <div style="padding: 20px; background: var(--teal-50); border-radius: var(--radius); color: var(--teal-900);" id="planContent"></div>
+                    <form method="POST" action="{{ url_for('save_study_plan') }}" style="margin-top: 15px;">
+                        <input type="hidden" name="plan_text" id="planTextInput">
+                        <input type="hidden" name="module_name" id="planModuleInput">
+                        <button type="submit" class="btn btn-primary">💾 Save this study plan</button>
+                    </form>
+                </div>
+            </div>
 
-<div id="studyPlanResult" style="display:none; margin-top:15px; padding:15px; background:#f5f5f5; border-radius:12px;">
-    <h4>📋 Your Study Plan</h4>
-    <div id="studyPlanContent"></div>
-</div>
-
-<script>
-function generateStudyPlan() {
-    // Get the current forecast
-    const stressLevel = document.querySelector('.card .stress-level')?.innerText || 'High';
-    
-    // Generate a simple study plan
-    const plan = `
-        <strong>Based on your stress level (${stressLevel}):</strong><br><br>
-        <strong>Monday:</strong> Review lecture notes (2 hrs)<br>
-        <strong>Tuesday:</strong> Practice questions (2 hrs)<br>
-        <strong>Wednesday:</strong> Create study outline (1.5 hrs)<br>
-        <strong>Thursday:</strong> Group study session (2 hrs)<br>
-        <strong>Friday:</strong> Review and revise (2 hrs)<br>
-        <strong>Weekend:</strong> Rest and recover 🌿<br><br>
-        <em>💡 Tip: Take a 10-min break every hour</em>
-    `;
-    
-    document.getElementById('studyPlanContent').innerHTML = plan;
-    document.getElementById('studyPlanResult').style.display = 'block';
-    alert('📚 Your study plan has been generated! Check below.');
-}
-</script>
-            
             <div class="card">
-                <h3>📝 Manual Deadline Entry</h3>
-                <form>
+                <h3>📂 Saved Study Plans</h3>
+                {% if saved_plans %}
+                    {% for p in saved_plans %}
+                    <div style="padding: 15px; background: var(--bg); border-radius: var(--radius); margin-bottom: 10px; border-left: 3px solid var(--teal-500);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <strong>{{ p.message.split(':')[0] }}</strong>
+                            <span style="font-size: 11px; color: var(--ink-500);">{{ p.sent_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <p style="font-size: 13px; color: var(--ink-700);">{{ p.message.split(':', 1)[1] }}</p>
+                        <form method="POST" action="{{ url_for('delete_saved_plan', plan_id=p.id) }}" style="margin-top: 8px;">
+                            <button type="submit" class="crisis-back-btn" style="font-size: 11px; padding: 4px 10px;">Remove</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--ink-500); font-size: 13px;">No saved study plans yet. Generate one above and click "Save".</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>📝 Add a Deadline</h3>
+                <form method="POST" action="{{ url_for('workload') }}">
+                    <input type="hidden" name="form_type" value="deadline">
                     <div class="form-group">
-                        <input type="text" placeholder="Course name" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                        <label>Course or task</label>
+                        <input type="text" name="course" id="deadlineCourse" placeholder="e.g. INF3703 Assignment" required>
                     </div>
                     <div class="form-group">
-                        <input type="date" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                        <label>Due date</label>
+                        <input type="date" name="due_date" id="deadlineDate" required>
                     </div>
                     <div class="form-group">
-                        <input type="number" placeholder="Weighting (%)" style="width:100%; padding:8px; border-radius:8px; border:1px solid #ddd;">
+                        <label>Weighting (%)</label>
+                        <input type="number" name="weighting" id="deadlineWeight" placeholder="20" min="0" max="100">
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="alert('Deadline added to your schedule!')">➕ Add Deadline</button>
+                    <button type="submit" class="btn btn-primary">➕ Add to forecast</button>
                 </form>
+            </div>
+
+            <div class="card">
+                <h3>📅 Your Deadlines</h3>
+                {% if deadlines %}
+                    {% for d in deadlines %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--ink-100);">
+                        <div>
+                            <strong>{{ d.course }}</strong>
+                            <div style="font-size: 12px; color: var(--ink-500); margin-top: 4px;">
+                                Due {{ d.due_date.strftime('%a, %d %b %Y') }} · {{ d.weighting }}% weighting
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ url_for('delete_deadline', deadline_id=d.id) }}">
+                            <button type="submit" class="crisis-back-btn" style="font-size: 11px; padding: 4px 10px;">Remove</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--ink-500); font-size: 13px;">No deadlines yet. Add one above.</p>
+                {% endif %}
             </div>
         </main>
     </div>
+
+    <script>
+    function generateStudyPlan() {
+        const moduleName = document.getElementById('planModule').value.trim();
+        if (!moduleName) {
+            alert('Please enter a module or subject name first.');
+            return;
+        }
+
+        const plan = `<strong>Your personalised plan for ${moduleName}:</strong><br><br>
+            <strong>Monday:</strong> Review lecture notes (2 hrs)<br>
+            <strong>Tuesday:</strong> Practice questions (2 hrs)<br>
+            <strong>Wednesday:</strong> Create study outline (1.5 hrs)<br>
+            <strong>Thursday:</strong> Group study session (2 hrs)<br>
+            <strong>Friday:</strong> Review and revise (2 hrs)<br>
+            <strong>Weekend:</strong> Rest and recover 🌿<br><br>
+            <em>💡 Tip: Take a 10-min break every hour</em>`;
+
+        document.getElementById('planContent').innerHTML = plan;
+        document.getElementById('planTextInput').value = 'Monday: Review notes (2 hrs); Tuesday: Practice (2 hrs); Wednesday: Outline (1.5 hrs); Thursday: Group study (2 hrs); Friday: Review (2 hrs); Weekend: Rest';
+        document.getElementById('planModuleInput').value = moduleName;
+        document.getElementById('studyPlanResult').style.display = 'block';
+        document.getElementById('studyPlanResult').scrollIntoView({ behavior: 'smooth' });
+    }
+    </script>
+
+    {% include 'crisis_modal.html' %}
 </body>
 </html>

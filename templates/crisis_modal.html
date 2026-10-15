@@ -1,0 +1,393 @@
+<!-- Crisis Modal -->
+<div id="crisisModal" class="crisis-modal">
+    <div class="crisis-modal-content">
+        <div class="crisis-modal-header">
+            <h2>⚠ Need urgent help?</h2>
+            <button class="crisis-close" onclick="closeCrisisModal()">×</button>
+        </div>
+
+        <!-- Step 1: University -->
+        <div id="crisisStep1">
+            <div class="crisis-step-label">Step 1 of 2</div>
+            <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">Which university are you at?</p>
+
+            <button class="crisis-option" onclick="selectUniversity('spu')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>Sol Plaatje University (SPU)</strong><span>Kimberley</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('uct')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of Cape Town (UCT)</strong><span>Cape Town</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('ufs')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of the Free State (UFS)</strong><span>Bloemfontein</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('up')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of Pretoria (UP)</strong><span>Pretoria</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('wits')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of the Witwatersrand (Wits)</strong><span>Johannesburg</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('rhodes')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>Rhodes University</strong><span>Makhanda</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('nmu')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>Nelson Mandela University (NMU)</strong><span>Port Elizabeth</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('univen')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of Venda (Univen)</strong><span>Thohoyandou</span></div>
+            </button>
+            <button class="crisis-option" onclick="selectUniversity('ufh')">
+                <div class="crisis-option-icon">🎓</div>
+                <div class="crisis-option-text"><strong>University of Fort Hare (UFH)</strong><span>Alice</span></div>
+            </button>
+
+            <button class="crisis-back-btn" onclick="selectUniversity('national')">Skip — show national helplines →</button>
+        </div>
+
+        <!-- Step 2: Emergency type -->
+        <div id="crisisStep2" style="display:none;">
+            <div class="crisis-step-label">Step 2 of 2</div>
+            <p style="color: var(--ink-500); font-size: 13px; margin-bottom: 15px;">What kind of emergency is it?</p>
+
+            <button class="crisis-option" onclick="showContacts('medical')">
+                <div class="crisis-option-icon">🚑</div>
+                <div class="crisis-option-text"><strong>Medical emergency</strong><span>Injury, fainting, severe pain</span></div>
+            </button>
+            <button class="crisis-option" onclick="showContacts('mental')">
+                <div class="crisis-option-icon">🧠</div>
+                <div class="crisis-option-text"><strong>Mental health crisis</strong><span>Thoughts of self-harm or suicide</span></div>
+            </button>
+            <button class="crisis-option" onclick="showContacts('safety')">
+                <div class="crisis-option-icon">🚨</div>
+                <div class="crisis-option-text"><strong>Personal safety</strong><span>Assault, harassment, danger</span></div>
+            </button>
+            <button class="crisis-option" onclick="showContacts('gbv')">
+                <div class="crisis-option-icon">🛡️</div>
+                <div class="crisis-option-text"><strong>Gender-based violence</strong><span>GBV support and reporting</span></div>
+            </button>
+
+            <button class="crisis-back-btn" onclick="backToStep1()">← Back to university selection</button>
+        </div>
+
+        <!-- Step 3: Contacts -->
+        <div id="crisisStep3" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+const CRISIS_DATA = {
+    spu: {
+        name: 'Sol Plaatje University (SPU)',
+        medical: [
+            { label: 'Campus Control (SPU)', value: '053 491 0911' },
+            { label: 'ER24 Medical & Trauma', value: '084 124 1011' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SPU Health & Wellness (email)', value: 'health.wellness@spu.ac.za', isEmail: true }
+        ],
+        safety: [
+            { label: 'Campus Control (SPU)', value: '053 491 0911' },
+            { label: 'ER24 Medical & Trauma', value: '084 124 1011' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'SPU Health & Wellness (email)', value: 'health.wellness@spu.ac.za', isEmail: true },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ]
+    },
+    uct: {
+        name: 'University of Cape Town (UCT)',
+        medical: [
+            { label: 'Campus Protection Services (24hr)', value: '021 650 2222' },
+            { label: 'CPS Toll-Free', value: '080 650 2222' },
+            { label: 'UCT Student Careline', value: '0800 24 25 26' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'UCT Student Careline', value: '0800 24 25 26' },
+            { label: 'Student Careline SMS', value: '31393' },
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ],
+        safety: [
+            { label: 'Campus Protection Services (24hr)', value: '021 650 2222' },
+            { label: 'Sexual Assault 24hr Hotline', value: '072 393 7824' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Sexual Assault 24hr Hotline', value: '072 393 7824' },
+            { label: 'UCT Student Careline', value: '0800 24 25 26' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ]
+    },
+    ufs: {
+        name: 'University of the Free State (UFS)',
+        medical: [
+            { label: 'Bloemfontein Campus Protection', value: '051 401 2911' },
+            { label: 'Bloemfontein Toll-Free', value: '0800 204 682' },
+            { label: 'Qwaqwa Campus Protection', value: '058 718 5460' },
+            { label: 'South Campus Protection', value: '051 505 1217' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'Bloemfontein Campus Protection', value: '051 401 2911' },
+            { label: 'Qwaqwa Campus Protection', value: '058 718 5460' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Bloemfontein Campus Protection', value: '051 401 2911' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ]
+    },
+    up: {
+        name: 'University of Pretoria (UP)',
+        medical: [
+            { label: '24/7 Emergency Hotline', value: '012 420 2310' },
+            { label: '24/7 Emergency Hotline (alt)', value: '012 420 2760' },
+            { label: 'UP Toll-Free Help Line', value: '0800 227 007' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'UP Toll-Free Help Line', value: '0800 227 007' },
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ],
+        safety: [
+            { label: '24/7 Emergency Hotline', value: '012 420 2310' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'GBV / Transformation WhatsApp Line', value: '012 420 8404' },
+            { label: '24/7 Emergency Hotline', value: '012 420 2310' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ]
+    },
+    wits: {
+        name: 'University of the Witwatersrand (Wits)',
+        medical: [
+            { label: 'Campus Health & Wellness', value: '011 717 9111' },
+            { label: 'Campus Health (alt)', value: '011 717 9113' },
+            { label: 'OHS Emergency Response', value: '011 717 9192' },
+            { label: 'OHS Emergency (mobile)', value: '084 627 3591' }
+        ],
+        mental: [
+            { label: 'Staff Support Line (Life Health)', value: '0800 004 770' },
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ],
+        safety: [
+            { label: 'OHS Emergency Response', value: '011 717 9192' },
+            { label: 'OHS Mobile', value: '084 627 3591' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Gender Equity Office', value: '011 717 9790' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ]
+    },
+    rhodes: {
+        name: 'Rhodes University',
+        medical: [
+            { label: 'ER24 Medical & Trauma (24/7)', value: '010 205 3068', note: 'Identify as Rhodes student' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'ER24 Medical & Trauma (24/7)', value: '010 205 3068' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ]
+    },
+    nmu: {
+        name: 'Nelson Mandela University (NMU)',
+        medical: [
+            { label: 'North Campus', value: '041 504 3222' },
+            { label: 'South Campus', value: '041 504 2511' },
+            { label: 'Missionvale Campus', value: '041 504 1106' },
+            { label: '2nd Avenue Campus', value: '041 504 3854' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'North Campus', value: '041 504 3222' },
+            { label: 'South Campus', value: '041 504 2511' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' }
+        ]
+    },
+    univen: {
+        name: 'University of Venda (Univen)',
+        medical: [
+            { label: 'Campus Security Protection', value: '015 962 8193' },
+            { label: 'Campus Security (alt)', value: '015 962 8820' },
+            { label: 'Medical Emergency Ambulance', value: '015 963 1397' },
+            { label: 'Ambulance WhatsApp', value: '064 977 2909' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'Campus Security Protection', value: '015 962 8193' },
+            { label: 'Campus Security (alt)', value: '015 962 8120' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Campus Security Protection', value: '015 962 8193' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ]
+    },
+    ufh: {
+        name: 'University of Fort Hare (UFH)',
+        medical: [
+            { label: 'Alice Campus Security', value: '040 602 2243' },
+            { label: 'Alice Campus Security (mobile)', value: '082 659 6779' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'Alice Campus Security', value: '040 602 2243' },
+            { label: 'Alice Campus Security (mobile)', value: '082 659 6779' },
+            { label: 'Police', value: '10111' }
+        ],
+        gbv: [
+            { label: 'Gender-Based Violence Hotline', value: '072 864 5864' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ]
+    },
+    national: {
+        name: 'National Emergency Contacts',
+        medical: [
+            { label: 'Ambulance (National)', value: '10177' },
+            { label: 'ER24 Medical & Trauma', value: '084 124 1011' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        mental: [
+            { label: 'SADAG Suicide Crisis Line', value: '0800 567 567' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ],
+        safety: [
+            { label: 'Police (National)', value: '10111' },
+            { label: 'Ambulance (National)', value: '10177' }
+        ],
+        gbv: [
+            { label: 'GBV Command Centre', value: '0800 428 428' },
+            { label: 'SADAG Mental Health WhatsApp', value: '076 882 2775' },
+            { label: 'Higher Health 24hr Crisis Helpline', value: '0800 363 636' }
+        ]
+    }
+};
+
+let selectedUniversity = null;
+
+function openCrisisModal() {
+    document.getElementById('crisisModal').classList.add('active');
+    backToStep1();
+}
+
+function closeCrisisModal() {
+    document.getElementById('crisisModal').classList.remove('active');
+}
+
+function selectUniversity(key) {
+    selectedUniversity = key;
+    document.getElementById('crisisStep1').style.display = 'none';
+    document.getElementById('crisisStep2').style.display = 'block';
+    document.getElementById('crisisStep3').style.display = 'none';
+}
+
+function showContacts(type) {
+    const data = CRISIS_DATA[selectedUniversity];
+    if (!data) return;
+
+    const contacts = data[type] || [];
+    let html = `
+        <div class="crisis-step-label">Emergency contacts</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="font-size:13px; color: var(--ink-500);">${data.name}</div>
+            <button class="crisis-back-btn" style="margin:0; padding:4px 10px; font-size:11px;" onclick="backToStep2()">Change type</button>
+        </div>
+        <div class="crisis-contact-panel active" style="margin-top:0;">
+            <h3>${type === 'medical' ? '🚑 Medical Emergency' : type === 'mental' ? '🧠 Mental Health Crisis' : type === 'safety' ? '🚨 Personal Safety' : '🛡️ Gender-Based Violence'}</h3>
+            <p>Tap any number to call directly.</p>
+    `;
+
+    contacts.forEach(c => {
+        const href = c.isEmail ? `mailto:${c.value}` : `tel:${c.value.replace(/\s/g, '')}`;
+        const icon = c.isEmail ? '📧' : '📞';
+        html += `
+            <a href="${href}" class="contact-line">
+                ${icon} ${c.label}: ${c.value}
+                ${c.note ? `<small>${c.note}</small>` : ''}
+            </a>
+        `;
+    });
+
+    html += `
+            <p style="font-size:11px; color: var(--ink-500); margin-top:15px;">
+                If you are in immediate danger, call 10111 (Police) or 10177 (Ambulance).
+            </p>
+        </div>
+        <button class="crisis-back-btn" onclick="backToStep1()">← Start over</button>
+    `;
+
+    document.getElementById('crisisStep3').innerHTML = html;
+    document.getElementById('crisisStep1').style.display = 'none';
+    document.getElementById('crisisStep2').style.display = 'none';
+    document.getElementById('crisisStep3').style.display = 'block';
+}
+
+function backToStep1() {
+    document.getElementById('crisisStep1').style.display = 'block';
+    document.getElementById('crisisStep2').style.display = 'none';
+    document.getElementById('crisisStep3').style.display = 'none';
+    selectedUniversity = null;
+}
+
+function backToStep2() {
+    document.getElementById('crisisStep1').style.display = 'none';
+    document.getElementById('crisisStep2').style.display = 'block';
+    document.getElementById('crisisStep3').style.display = 'none';
+}
+
+document.getElementById('crisisModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCrisisModal();
+});
+</script>
